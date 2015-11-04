@@ -2,13 +2,14 @@ import {Actions} from './Actions';
 import utils from './utils';
 import Freezer from 'freezer-js';
 import getConnectMixin from './mixins/connect';
+import GlobalStore from './globalStore';
 
 
 export default class Store {
   constructor(args={}) {
-    let {actions, initial} = args;
+    let {path, actions, initial} = args;
     let init = typeof initial === 'function' ? initial() : initial;
-    let store = new Freezer(init || {});
+    let store = GlobalStore.init(path, init || {});
 
     this.connect = function (...args) {
       return getConnectMixin(this, args.concat(args));
@@ -22,23 +23,24 @@ export default class Store {
     }
 
     const set = function (item, value) {
-      store.get().set(item, value);
+      GlobalStore.set(path, item, value);
     };
 
     const get = function (item) {
       if (item)
-        return store.get().toJS()[item];
-      return store.get();
+        return GlobalStore.get(path).toJS()[item];
+      return GlobalStore.get(path);
     };
 
     const reset = function () {
       this.set(init);
     };
 
+    this.path = path;
     this.set = set;
     this.get = get;
     this.reset = reset;
-    this.store = store;
+    this.store = GlobalStore.getStore();
 
     this.stateProto = {set, get, reset, actions};
     //this.getter = new Getter(this);

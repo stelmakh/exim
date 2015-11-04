@@ -8,7 +8,7 @@ export default function getConnectMixin (store) {
   return {
     getInitialState: function () {
       const frozen = store.store.get(arguments);
-      const state = frozen.toJS();
+      const state = frozen[store.path].toJS();
 
       if (!this.boundEximChangeCallbacks)
         this.boundEximChangeCallbacks = {};
