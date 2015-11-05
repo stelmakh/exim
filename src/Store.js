@@ -28,7 +28,7 @@ export default class Store {
 
     const get = function (item) {
       if (item)
-        return GlobalStore.get(path).toJS()[item];
+        return GlobalStore.get(path, item);
       return GlobalStore.get(path);
     };
 

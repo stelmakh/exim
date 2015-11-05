@@ -25,8 +25,8 @@ export default class GlobalStore {
   static get(substore, name) {
     let store = this.getState();
     if (!name)
-      return store[substore];
-    return store[substore] ? store[substore][name] : {};
+      return store[substore].toJS();
+    return store[substore] ? store[substore].toJS()[name] : {};
   }
 
   static set(substore, name, value) {
