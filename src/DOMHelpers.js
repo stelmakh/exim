@@ -4,15 +4,6 @@ import ReactRouter from 'react-router';
 function getRouter () {
   const Router = {};
 
-  const mount = function(name) {
-    if (name.indexOf('/') < 0) {
-      name = name + '/' + name.charAt(0).toUpperCase() + name.slice(1);
-    }
-    path = "components/" + name
-
-    // require()().type
-  }
-
   if (typeof ReactRouter !== 'undefined') {
     let routerElements = ['Route', 'DefaultRoute', 'RouteHandler', 'ActiveHandler', 'NotFoundRoute', 'Link', 'Redirect'],
     routerMixins = ['Navigation', 'State'],
@@ -28,29 +19,37 @@ function getRouter () {
       Router[name] = ReactRouter[name];
     });
 
+    Router['mount'] = function(path) {
+      console.log('Exim.Router.mount is not defined');
+    }
+
     Router['match'] = function(name, handler, args, children) {
-      // console.log('match', name, handler, args, children);
-      if (typeof handler === 'Object') {
+      if (typeof handler === 'object') {
         children = args;
         args = handler;
+
+        let segments = name.split('-');
+        let filePath;
+        if (segments.length > 1) {
+          filePath = segments.map(function(name, i){
+            if (i>0)
+              return name.charAt(0).toUpperCase() + name.slice(1)
+            return name
+          }).join('/');
+        } else {
+          filePath = name + '/' + name.charAt(0).toUpperCase() + name.slice(1);
+        }
+
+        handler = Router.mount(filePath);
       }
 
-      let segments = name.split('-');
-      let filePath;
-      if (segments.length > 1) {
-        filePath = segments.map(function(name, i){
-          if (i>0)
-            return name.charAt(0).toUpperCase() + name.slice(1)
-          return name
-        }).join('/');
-      } else {
-        filePath = name + '/' + name.charAt(0).toUpperCase() + name.slice(1);
+      let path, key, def;
+
+      if (args){
+        path = args.path;
+        key = args.key;
+        def = args.default;
       }
-
-      console.log(name, filePath);
-
-      let {path, key} = args;
-      let def = args.default;
 
       if (def === true) {
         return Router['DefaultRoute']({name, path, handler, key}, children);
@@ -59,6 +58,7 @@ function getRouter () {
       return Router['Route']({name, path, handler, key}, children);
     };
   }
+
   return Router;
 }
 
