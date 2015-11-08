@@ -60,6 +60,8 @@ Exim.listen = function (args) {
   return mixins;
 };
 
+Exim.stores = GlobalStore.getStore();
+
 var root = typeof self === "object" && self.self === self && self || typeof global === "object" && global.global === global && global;
 
 if (typeof root.exports !== "undefined") {

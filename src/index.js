@@ -43,6 +43,7 @@ Exim.listen = function (args) {
   return mixins;
 };
 
+Exim.stores = GlobalStore.getStore();
 
 const root = typeof self === 'object' && self.self === self && self || typeof global === 'object' && global.global === global && global;
 
