@@ -8,41 +8,48 @@ export default class GlobalStore {
     return globalStore;
   }
 
-  static init(substore, init) {
+  static getSubstore(path, init) {
     let store = this.getStore();
-    let values = store[substore];
+    let pathBits = path.split('/');
+    let values = store;
+    pathBits.forEach(function(bit, i, bits) {
+      if (values[bit]) {
+        values = values[bit];
+      } else {
+        values[bit] = (typeof init !== undefined && bits.length - 1 === i) ? init : new Object();
+        values = values[bit];
+      }
+    });
+    return values;
+  }
 
-    if (values)
-      return values;
-
-    store[substore] = init ? init : new Object();
-    return store[substore];
+  static init(substore, init) {
+    return this.getSubstore(substore, init);
   }
 
   static get(substore, name) {
-    let store = this.getStore();
+    let values = this.getSubstore(substore);
     if (!name)
-      return store[substore];
-    return store[substore] ? store[substore][name] : {};
+      values;
+    return values ? values[name] : new Object();
   }
 
   static remove(substore, key) {
-    let store = this.getStore()[substore];
+    let values = this.getSubstore(substore);
 
     let success = false;
     if (!key) {
-      for (let key in store) {
-        success = store[key] && delete store[key];
+      for (let key in values) {
+        success = values[key] && delete values[key];
       }
     } else {
-     success = store[key] && delete store[key];
+     success = values[key] && delete values[key];
     }
     return success;
   }
 
   static set(substore, name, value) {
-    let store = this.getStore();
-    let values = store[substore];
+    let values = this.getSubstore(substore);
 
     if (values)
       values[name] = value;
