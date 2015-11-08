@@ -60,5 +60,6 @@ export const DOM = getDOM();
 export function createView (classArgs) {
   let ReactClass = React.createClass(classArgs);
   let ReactElement = React.createElement.bind(React.createElement, ReactClass);
+
   return ReactElement;
 };

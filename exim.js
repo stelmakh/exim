@@ -13,6 +13,10 @@ var Store = _interopRequire(require("./Store"));
 
 var helpers = _interopRequire(require("./helpers"));
 
+var Getter = _interopRequire(require("./Getter"));
+
+var GlobalStore = _interopRequire(require("./GlobalStore"));
+
 var _DOMHelpers = require("./DOMHelpers");
 
 var createView = _DOMHelpers.createView;
@@ -33,6 +37,29 @@ Exim.createStore = function (args) {
   return new Store(args);
 };
 
+Exim.listen = function (args) {
+  var stores = new Object();
+  args.forEach(function (path) {
+    var pathBits = path.split("/");
+    var pathLength = pathBits.length;
+
+    if (pathLength > 1) {
+      var storePath = pathBits.slice(0, pathLength - 1).join("/");
+      var varPath = pathBits.slice(pathLength - 1)[0];
+
+      stores[storePath] = Array.isArray(stores[storePath]) ? stores[storePath].concat(varPath) : [varPath];
+    }
+  });
+
+  var mixins = [];
+  Object.keys(stores).forEach(function (path) {
+    var store = GlobalStore.findStore(path);
+    mixins.push(store.getter.connect.apply(store.getter, stores[path]));
+  });
+
+  return mixins;
+};
+
 var root = typeof self === "object" && self.self === self && self || typeof global === "object" && global.global === global && global;
 
 if (typeof root.exports !== "undefined") {
@@ -45,7 +72,7 @@ if (typeof root.exports !== "undefined") {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./Actions":2,"./DOMHelpers":4,"./Store":7,"./helpers":9}],2:[function(require,module,exports){
+},{"./Actions":2,"./DOMHelpers":4,"./Getter":6,"./GlobalStore":7,"./Store":8,"./helpers":10}],2:[function(require,module,exports){
 "use strict";
 
 var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
@@ -264,12 +291,13 @@ exports.DOM = DOM;
 function createView(classArgs) {
   var ReactClass = React.createClass(classArgs);
   var ReactElement = React.createElement.bind(React.createElement, ReactClass);
+
   return ReactElement;
 }
 
 ;
 
-},{"./utils":11}],5:[function(require,module,exports){
+},{"./utils":12}],5:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -380,7 +408,106 @@ var Getter = (function (_Emitter) {
 
 module.exports = Getter;
 
-},{"./Emitter":5,"./config":8,"./mixins/connect":10}],7:[function(require,module,exports){
+},{"./Emitter":5,"./config":9,"./mixins/connect":11}],7:[function(require,module,exports){
+"use strict";
+
+var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _classCallCheck = function (instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } };
+
+var globalStore, stores;
+
+var GlobalStore = (function () {
+  function GlobalStore() {
+    _classCallCheck(this, GlobalStore);
+  }
+
+  _createClass(GlobalStore, null, {
+    getStore: {
+      value: function getStore() {
+        if (!globalStore) {
+          globalStore = new Object();
+        }
+        return globalStore;
+      }
+    },
+    getSubstore: {
+      value: function getSubstore(path, init) {
+        var store = this.getStore();
+        var pathBits = path.split("/");
+        var values = store;
+        pathBits.forEach(function (bit, i, bits) {
+          if (values[bit]) {
+            values = values[bit];
+          } else {
+            values[bit] = typeof init !== undefined && bits.length - 1 === i ? init : new Object();
+            values = values[bit];
+          }
+        });
+        return values;
+      }
+    },
+    init: {
+      value: (function (_init) {
+        var _initWrapper = function init(_x, _x2, _x3) {
+          return _init.apply(this, arguments);
+        };
+
+        _initWrapper.toString = function () {
+          return _init.toString();
+        };
+
+        return _initWrapper;
+      })(function (path, init, store) {
+        if (typeof stores === "undefined") stores = new Object();
+        stores[path] = store;
+        return this.getSubstore(path, init);
+      })
+    },
+    get: {
+      value: function get(substore, name) {
+        var values = this.getSubstore(substore);
+        if (!name) values;
+        return values ? values[name] : new Object();
+      }
+    },
+    remove: {
+      value: function remove(substore, key) {
+        var values = this.getSubstore(substore);
+
+        var success = false;
+        if (!key) {
+          for (var _key in values) {
+            success = values[_key] && delete values[_key];
+          }
+        } else {
+          success = values[key] && delete values[key];
+        }
+        return success;
+      }
+    },
+    set: {
+      value: function set(substore, name, value) {
+        var values = this.getSubstore(substore);
+
+        if (values) values[name] = value;
+
+        return this.get(substore);
+      }
+    },
+    findStore: {
+      value: function findStore(path) {
+        return stores[path];
+      }
+    }
+  });
+
+  return GlobalStore;
+})();
+
+module.exports = GlobalStore;
+
+},{}],8:[function(require,module,exports){
 "use strict";
 
 var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
@@ -397,17 +524,21 @@ var Getter = _interopRequire(require("./Getter"));
 
 var utils = _interopRequire(require("./utils"));
 
+var GlobalStore = _interopRequire(require("./GlobalStore"));
+
 var Store = (function () {
   function Store() {
     var args = arguments[0] === undefined ? {} : arguments[0];
 
     _classCallCheck(this, Store);
 
+    var path = args.path;
     var actions = args.actions;
     var initial = args.initial;
 
     this.initial = initial = typeof initial === "function" ? initial() : initial;
-    var store = initial ? Object.create(initial) : {};
+    this.path = path;
+    GlobalStore.init(path, initial, this);
 
     var privateMethods = undefined;
     if (!args.privateMethods) {
@@ -436,23 +567,15 @@ var Store = (function () {
       var correctArgs = ["key", "value"].every(function (item) {
         return typeof item === "string";
       });
-      return correctArgs ? store[key] = value : false;
+      return correctArgs ? GlobalStore.set(path, key, value) : false;
     };
 
     var getValue = function getValue(key) {
-      return key ? store[key] : Object.create(store);
+      return GlobalStore.get(path, key);
     };
 
     var removeValue = function removeValue(key) {
-      var success = false;
-      if (!key) {
-        for (var _key in store) {
-          success = store[_key] && delete store[_key];
-        }
-      } else {
-        success = store[key] && delete store[key];
-      }
-      return success;
+      return GlobalStore.remove(path, key);
     };
 
     var set = function set(item, value) {
@@ -649,14 +772,14 @@ var Store = (function () {
 
 module.exports = Store;
 
-},{"./Actions":2,"./Getter":6,"./mixins/connect":10,"./utils":11}],8:[function(require,module,exports){
+},{"./Actions":2,"./Getter":6,"./GlobalStore":7,"./mixins/connect":11,"./utils":12}],9:[function(require,module,exports){
 "use strict";
 
 module.exports = {
   allowedGetterProps: ["get", "initial", "actions"]
 };
 
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 "use strict";
 
 module.exports = {
@@ -671,7 +794,7 @@ module.exports = {
   }
 };
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 "use strict";
 
 var _interopRequire = function (obj) { return obj && obj.__esModule ? obj["default"] : obj; };
@@ -735,7 +858,7 @@ function getConnectMixin(store) {
   };
 }
 
-},{"../utils":11}],11:[function(require,module,exports){
+},{"../utils":12}],12:[function(require,module,exports){
 "use strict";
 
 var utils = {};

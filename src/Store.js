@@ -8,7 +8,8 @@ export default class Store {
   constructor(args={}) {
     let {path, actions, initial} = args;
     this.initial = initial = typeof initial === 'function' ? initial() : initial;
-    const store = GlobalStore.init(path, initial);
+    this.path = path;
+    GlobalStore.init(path, initial, this);
 
     let privateMethods;
     if (!args.privateMethods) {

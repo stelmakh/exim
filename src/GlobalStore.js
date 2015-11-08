@@ -1,4 +1,4 @@
-var globalStore;
+var globalStore, stores;
 
 export default class GlobalStore {
   static getStore() {
@@ -23,8 +23,11 @@ export default class GlobalStore {
     return values;
   }
 
-  static init(substore, init) {
-    return this.getSubstore(substore, init);
+  static init(path, init, store) {
+    if(typeof stores === 'undefined')
+      stores = new Object();
+    stores[path] = store;
+    return this.getSubstore(path, init);
   }
 
   static get(substore, name) {
@@ -55,5 +58,9 @@ export default class GlobalStore {
       values[name] = value;
 
     return this.get(substore);
+  }
+
+  static findStore(path) {
+    return stores[path];
   }
 }
