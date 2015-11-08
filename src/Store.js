@@ -2,12 +2,13 @@ import {Actions} from './Actions'
 import connect from './mixins/connect'
 import Getter from './Getter'
 import utils from './utils'
+import GlobalStore from './GlobalStore'
 
 export default class Store {
   constructor(args={}) {
-    let {actions, initial} = args;
+    let {path, actions, initial} = args;
     this.initial = initial = typeof initial === 'function' ? initial() : initial;
-    const store = initial ? Object.create(initial) : {};
+    const store = GlobalStore.init(path, initial);
 
     let privateMethods;
     if (!args.privateMethods) {
@@ -32,23 +33,15 @@ export default class Store {
 
     const setValue = function (key, value) {
       const correctArgs = ['key', 'value'].every(item => typeof item === 'string');
-      return (correctArgs) ? store[key] = value : false;
+      return (correctArgs) ? GlobalStore.set(path, key, value) : false;
     }
 
     const getValue = function (key) {
-      return key ? store[key] : Object.create(store);
+      return GlobalStore.get(path, key);
     }
 
     const removeValue = function (key) {
-      let success = false;
-      if (!key) {
-        for (let key in store) {
-          success = store[key] && delete store[key];
-        }
-      } else {
-       success = store[key] && delete store[key];
-      }
-      return success;
+      return GlobalStore.remove(path, key);
     }
 
     const set = function (item, value, options={}) {
