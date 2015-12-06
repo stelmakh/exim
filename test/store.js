@@ -22,7 +22,7 @@ const createStore = function(name, handler){
   let action = new Action(params);
 
   config.actions = [action];
-  config.action = handler;
+  config[name] = handler;
 
   return new Store(config);
 }
@@ -130,15 +130,24 @@ describe('Store', () => {
       });
 
       describe('on error', () =>  {
-        it("should reject promise", () => {
-          let name = 'action';
-          let onHandler = function(){throw 'reject';}, didNotHandler = sinon.spy();
-          let handler = {didNot: didNotHandler, on: onHandler};
+        let store, onHandler, didNotHandler;
 
-          let store = createStore(name, handler);
+        beforeEach(() => {
+          onHandler = function(){throw 'reject';};
+          didNotHandler = sinon.spy();
+
+          store = createStore('action', {didNot: didNotHandler, on: onHandler});
+        });
+
+        it("should reject promise", () => {
           let result = store.actions.action()
 
-          result.should.be.reject;
+          return result.should.be.rejected;
+        });
+
+        it("should execute 'didNot' function", () => {
+          let result = store.actions.action()
+
           return result.catch(() => {
             didNotHandler.should.have.been.calledOnce;
           });
