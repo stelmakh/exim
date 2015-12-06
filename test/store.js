@@ -15,16 +15,23 @@ let dummyConfig = {
   path: 'test'
 }
 
-const createStore = function(name, handler){
-  let params = {name};
+const createStore = function(name, handler, config){
+  let conf;
 
-  let config = Object.create(dummyConfig);
-  let action = new Action(params);
+  if(typeof config === 'object')
+    conf = config
+  else
+    conf = Object.create(dummyConfig);
 
-  config.actions = [action];
-  config[name] = handler;
+  if(typeof name !== 'undefined' && typeof handler !== 'undefined'){
+    let params = {name};
+    let action = new Action(params);
 
-  return new Store(config);
+    conf.actions = [action];
+    conf[name] = handler;
+  }
+
+  return new Store(conf);
 }
 
 describe('Store', () => {
@@ -81,7 +88,16 @@ describe('Store', () => {
     });
 
     describe('declared as function', () =>  {
-      it('should execute action', () => {
+      it('should resolve promise', () => {
+        let name = 'action';
+        let handler = sinon.spy();
+
+        let store = createStore(name, handler);
+
+        return store.actions.action().should.be.fulfilled;
+      });
+
+      it('should execute handler', () => {
         let name = 'action';
         let handler = sinon.spy();
 
@@ -89,6 +105,15 @@ describe('Store', () => {
 
         return store.actions.action().then(() => {
           handler.should.have.been.calledOnce;
+        });
+      });
+
+      describe('on error', () =>  {
+        it("should reject promise", () => {
+          let handler = function(){throw 'reject';};
+          let store = createStore('action', handler);
+
+          return store.actions.action().should.be.rejected;
         });
       });
     });
@@ -155,4 +180,49 @@ describe('Store', () => {
       });
     });
   });
+
+
+  describe('#get', () =>  {
+    it('should return initial values', () => {
+      let initial = {testValue: 'abc'};
+      let config = Object.create(dummyConfig);
+      config.initial = initial;
+
+      let store = createStore(null, null, config);
+
+      return store.get(Object.keys(initial)[0]).should.equal(initial.testValue);
+    });
+
+    it('should return values set in action handler', () => {
+      let name = 'action';
+      let val = {testKey: 'testValue'}
+      let onHandler = sinon.spy();
+      let handler = {did: function(){this.set(val)}, on: onHandler};
+
+      let store = createStore(name, handler);
+
+      return store.actions.action().then(() => {
+        store.get(Object.keys(val)[0]).should.equal(val.testKey);
+      });
+    });
+
+    it('should update initial values in action handler', () => {
+      let initial = {testKey: 'abc'};
+      let config = Object.create(dummyConfig);
+      config.initial = initial;
+
+      let name = 'action';
+      let val = {testKey: 'testValue'}
+      let onHandler = sinon.spy();
+      let handler = {did: function(){this.set(val)}, on: onHandler};
+
+      let store = createStore(name, handler, config);
+
+      return store.actions.action().then(() => {
+        store.get(Object.keys(val)[0]).should.not.equal(initial.testKey);
+        store.get(Object.keys(val)[0]).should.equal(val.testKey);
+      });
+    });
+  });
+
 });
