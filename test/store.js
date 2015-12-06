@@ -86,7 +86,24 @@ describe('Store', () => {
     });
 
     describe('declared as hash', () =>  {
-      it('should execute action', () => {
+      it("should execute 'will' action", () => {
+        let name = 'action';
+        let params = {name};
+
+        let config = Object.create(dummyConfig);
+        let action = new Action(params);
+        let onHandler = sinon.spy(), willHandler = sinon.spy();
+
+        config.actions = [action];
+        config.action = {will: willHandler, on: onHandler};
+
+        let store = new Store(config);
+
+        store.actions.action().then(() => {
+          willHandler.should.have.been.calledOnce;
+        });
+      });
+      it("should execute 'on' action", () => {
         let name = 'action';
         let params = {name};
 
@@ -101,6 +118,24 @@ describe('Store', () => {
 
         store.actions.action().then(() => {
           onHandler.should.have.been.calledOnce;
+        });
+      });
+
+      it("should execute 'did' action", () => {
+        let name = 'action';
+        let params = {name};
+
+        let config = Object.create(dummyConfig);
+        let action = new Action(params);
+        let onHandler = sinon.spy(), didHandler = sinon.spy();
+
+        config.actions = [action];
+        config.action = {did: didHandler, on: onHandler};
+
+        let store = new Store(config);
+
+        store.actions.action().then(() => {
+          didHandler.should.have.been.calledOnce;
         });
       });
     });
