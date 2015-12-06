@@ -1,8 +1,11 @@
 let chai = require('chai');
 var sinon = require("sinon");
 var sinonChai = require("sinon-chai");
+var chaiAsPromised = require("chai-as-promised");
+
 
 chai.use(sinonChai);
+chai.use(chaiAsPromised);
 chai.should();
 
 import Store from '../src/Store'
@@ -10,6 +13,18 @@ import { Action, Actions } from '../src/Actions'
 
 let dummyConfig = {
   path: 'test'
+}
+
+const createStore = function(name, handler){
+  let params = {name};
+
+  let config = Object.create(dummyConfig);
+  let action = new Action(params);
+
+  config.actions = [action];
+  config.action = handler;
+
+  return new Store(config);
 }
 
 describe('Store', () => {
@@ -62,24 +77,17 @@ describe('Store', () => {
 
       store.actions.action();
 
-      action.run.should.have.been.calledOnce;
+      return action.run.should.have.been.calledOnce;
     });
 
     describe('declared as function', () =>  {
       it('should execute action', () => {
         let name = 'action';
-        let params = {name};
-
-        let config = Object.create(dummyConfig);
-        let action = new Action(params);
         let handler = sinon.spy();
 
-        config.actions = [action];
-        config.action = handler;
+        let store = createStore(name, handler);
 
-        let store = new Store(config);
-
-        store.actions.action().then(() => {
+        return store.actions.action().then(() => {
           handler.should.have.been.calledOnce;
         });
       });
@@ -88,72 +96,50 @@ describe('Store', () => {
     describe('declared as hash', () =>  {
       it("should execute 'will' action", () => {
         let name = 'action';
-        let params = {name};
-
-        let config = Object.create(dummyConfig);
-        let action = new Action(params);
         let onHandler = sinon.spy(), willHandler = sinon.spy();
+        let handler = {will: willHandler, on: onHandler};
 
-        config.actions = [action];
-        config.action = {will: willHandler, on: onHandler};
+        let store = createStore(name, handler);
 
-        let store = new Store(config);
-
-        store.actions.action().then(() => {
+        return store.actions.action().then(() => {
           willHandler.should.have.been.calledOnce;
         });
       });
       it("should execute 'on' action", () => {
         let name = 'action';
-        let params = {name};
-
-        let config = Object.create(dummyConfig);
-        let action = new Action(params);
         let onHandler = sinon.spy();
+        let handler = {on: onHandler};
 
-        config.actions = [action];
-        config.action = {on: onHandler};
+        let store = createStore(name, handler);
 
-        let store = new Store(config);
-
-        store.actions.action().then(() => {
+        return store.actions.action().then(() => {
           onHandler.should.have.been.calledOnce;
         });
       });
 
       it("should execute 'did' action", () => {
         let name = 'action';
-        let params = {name};
-
-        let config = Object.create(dummyConfig);
-        let action = new Action(params);
         let onHandler = sinon.spy(), didHandler = sinon.spy();
+        let handler = {did: didHandler, on: onHandler};
 
-        config.actions = [action];
-        config.action = {did: didHandler, on: onHandler};
+        let store = createStore(name, handler);
 
-        let store = new Store(config);
-
-        store.actions.action().then(() => {
+        return store.actions.action().then(() => {
           didHandler.should.have.been.calledOnce;
         });
       });
 
       describe('on error', () =>  {
-        it("should execute 'didNot' action", () => {
+        it("should reject promise", () => {
           let name = 'action';
-          let params = {name};
+          let onHandler = function(){throw 'reject';}, didNotHandler = sinon.spy();
+          let handler = {didNot: didNotHandler, on: onHandler};
 
-          let config = Object.create(dummyConfig);
-          let action = new Action(params);
-          let onHandler = function(){throw Error();}, didNotHandler = sinon.spy();
+          let store = createStore(name, handler);
+          let result = store.actions.action()
 
-          config.actions = [action];
-          config.action = {didNot: didNotHandler, on: onHandler};
-
-          let store = new Store(config);
-
-          store.actions.action().then(() => {
+          result.should.be.reject;
+          return result.catch(() => {
             didNotHandler.should.have.been.calledOnce;
           });
         });
