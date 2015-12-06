@@ -41,43 +41,4 @@ describe('Action', () => {
       action.stores.should.deep.equal(stores);
     });
   });
-
-  describe('#run()', () =>  {
-    it('should be called when store.actions.actionName is called', () => {
-      let name = 'action';
-      let params = {name};
-
-      let config = Object.create(dummyConfig);
-      let action = new Action(params);
-
-      sinon.spy(action, 'run');
-
-      config.actions = [action];
-      config.action = sinon.spy();
-
-      let store = new Store(config);
-
-      store.actions.action();
-
-      action.run.should.have.been.calledOnce;
-    });
-
-    it('should execute action', () => {
-      let name = 'action';
-      let params = {name};
-
-      let config = Object.create(dummyConfig);
-      let action = new Action(params);
-      let handler = sinon.spy();
-
-      config.actions = [action];
-      config.action = handler;
-
-      let store = new Store(config);
-
-      store.actions.action().then(() => {
-        handler.should.have.been.calledOnce;
-      });
-    });
-  });
 });
