@@ -154,6 +154,51 @@ describe('Store', () => {
         });
       });
 
+      describe("'while' action", () =>  {
+        it("being executed properly when 'on' action defined", () => {
+          let name = 'action';
+          let onHandler = sinon.spy(), whileHandler = sinon.spy();
+          let handler = {while: whileHandler, on: onHandler};
+
+          let store = createStore(name, handler);
+
+          return store.actions.action().then(() => {
+            whileHandler.should.have.been.calledTwice;
+            whileHandler.firstCall.args[0].should.be.true;
+            whileHandler.secondCall.args[0].should.be.false;
+          });
+        });
+
+        it("being executed properly when 'on' and 'did' actions defined", () => {
+          let name = 'action';
+          let onHandler = sinon.spy(), whileHandler = sinon.spy(), didHandler = sinon.spy();
+          let handler = {while: whileHandler, on: onHandler, did: didHandler};
+
+          let store = createStore(name, handler);
+
+          return store.actions.action().then(() => {
+            whileHandler.should.have.been.calledTwice;
+            whileHandler.firstCall.args[0].should.be.true;
+            whileHandler.secondCall.args[0].should.be.false;
+          });
+        });
+
+        it("being executed properly on error", () => {
+          let name = 'action';
+          let onHandler = function(){throw 'reject';}, whileHandler = sinon.spy();
+          let handler = {while: whileHandler, on: onHandler};
+
+          let store = createStore(name, handler);
+
+          return store.actions.action().catch(() => {
+            whileHandler.should.have.been.calledTwice;
+            whileHandler.firstCall.args[0].should.be.true;
+            whileHandler.secondCall.args[0].should.be.false;
+          });
+        });
+      });
+
+
       describe('on error', () =>  {
         let store, onHandler, didNotHandler;
 
