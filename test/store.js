@@ -36,14 +36,14 @@ const createStore = function(name, handler, config){
 
 describe('Store', () => {
   describe('#constructor()', () =>  {
-    it('should create store', () => {
+    it('creates a store', () => {
       let config = Object.create(dummyConfig);
       let store = new Store(config);
 
       store.should.be.an.instanceOf(Object);
     });
 
-    it('should initialize actions', () => {
+    it('initializes actions', () => {
       let action = 'action1';
       let config = Object.create(dummyConfig);
       config.actions = [action];
@@ -54,7 +54,7 @@ describe('Store', () => {
       store.actions.should.include.keys(action);
     });
 
-    it('should set initial values', () => {
+    it('sets initial values', () => {
       let initial = {testValue: 'abc'}
       let config = Object.create(dummyConfig);
       config.initial = initial;
@@ -68,7 +68,7 @@ describe('Store', () => {
   });
 
   describe('running actions', () =>  {
-    it('should call Action#run when store.actions.actionName is called', () => {
+    it('calls Action#run when store.actions.actionName is called', () => {
       let name = 'action';
       let params = {name};
 
@@ -88,7 +88,7 @@ describe('Store', () => {
     });
 
     describe('declared as function', () =>  {
-      it('should resolve promise', () => {
+      it('resolves promise', () => {
         let name = 'action';
         let handler = sinon.spy();
 
@@ -97,7 +97,7 @@ describe('Store', () => {
         return store.actions.action().should.be.fulfilled;
       });
 
-      it('should execute handler', () => {
+      it('executes handler', () => {
         let name = 'action';
         let handler = sinon.spy();
 
@@ -109,7 +109,7 @@ describe('Store', () => {
       });
 
       describe('on error', () =>  {
-        it("should reject promise", () => {
+        it("rejects promise", () => {
           let handler = function(){throw 'reject';};
           let store = createStore('action', handler);
 
@@ -119,7 +119,7 @@ describe('Store', () => {
     });
 
     describe('declared as hash', () =>  {
-      it("should execute 'will' action", () => {
+      it("executes 'will' action", () => {
         let name = 'action';
         let onHandler = sinon.spy(), willHandler = sinon.spy();
         let handler = {will: willHandler, on: onHandler};
@@ -130,7 +130,7 @@ describe('Store', () => {
           willHandler.should.have.been.calledOnce;
         });
       });
-      it("should execute 'on' action", () => {
+      it("executes 'on' action", () => {
         let name = 'action';
         let onHandler = sinon.spy();
         let handler = {on: onHandler};
@@ -142,7 +142,7 @@ describe('Store', () => {
         });
       });
 
-      it("should execute 'did' action", () => {
+      it("executes 'did' action", () => {
         let name = 'action';
         let onHandler = sinon.spy(), didHandler = sinon.spy();
         let handler = {did: didHandler, on: onHandler};
@@ -209,13 +209,13 @@ describe('Store', () => {
           store = createStore('action', {didNot: didNotHandler, on: onHandler});
         });
 
-        it("should reject promise", () => {
+        it("rejects promise", () => {
           let result = store.actions.action()
 
           return result.should.be.rejected;
         });
 
-        it("should execute 'didNot' function", () => {
+        it("executes 'didNot' function", () => {
           let result = store.actions.action()
 
           return result.catch(() => {
@@ -228,7 +228,7 @@ describe('Store', () => {
 
 
   describe('#get', () =>  {
-    it('should return initial values', () => {
+    it('returns initial values', () => {
       let initial = {testValue: 'abc'};
       let config = Object.create(dummyConfig);
       config.initial = initial;
@@ -238,7 +238,7 @@ describe('Store', () => {
       return store.get(Object.keys(initial)[0]).should.equal(initial.testValue);
     });
 
-    it('should return values set in action handler', () => {
+    it('returns values set in action handler', () => {
       let name = 'action';
       let val = {testKey: 'testValue'}
       let onHandler = sinon.spy();
@@ -251,7 +251,7 @@ describe('Store', () => {
       });
     });
 
-    it('should update initial values in action handler', () => {
+    it('updates initial values in action handler', () => {
       let initial = {testKey: 'abc'};
       let config = Object.create(dummyConfig);
       config.initial = initial;
