@@ -138,7 +138,26 @@ describe('Store', () => {
           didHandler.should.have.been.calledOnce;
         });
       });
-    });
 
+      describe('on error', () =>  {
+        it("should execute 'didNot' action", () => {
+          let name = 'action';
+          let params = {name};
+
+          let config = Object.create(dummyConfig);
+          let action = new Action(params);
+          let onHandler = function(){throw Error();}, didNotHandler = sinon.spy();
+
+          config.actions = [action];
+          config.action = {didNot: didNotHandler, on: onHandler};
+
+          let store = new Store(config);
+
+          store.actions.action().then(() => {
+            didNotHandler.should.have.been.calledOnce;
+          });
+        });
+      });
+    });
   });
 });
