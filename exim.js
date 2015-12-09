@@ -813,17 +813,13 @@ var Store = (function () {
         // Actual execution.
         promise = promise.then(function (willResult) {
           return transaction(function () {
-            try {
-              if (while_) {
-                while_.call(preserver, true);
-              }
-              if (willResult == null) {
-                return on_.apply(preserver, args);
-              } else {
-                return on_.call(preserver, willResult);
-              }
-            } catch (error) {
-              console.log("transaction/on", error);
+            if (while_) {
+              while_.call(preserver, true);
+            }
+            if (willResult == null) {
+              return on_.apply(preserver, args);
+            } else {
+              return on_.call(preserver, willResult);
             }
           });
         });
@@ -837,13 +833,13 @@ var Store = (function () {
         // Handle the result.
         if (did) promise = promise.then(function (onResult) {
           return transaction(function () {
-            try {
-              if (while_) while_.call(preserver, false);
-              return did.call(preserver, onResult);
-            } catch (error) {
-              console.log("transaction/did", error);
-            }
+            if (while_) while_.call(preserver, false);
+            return did.call(preserver, onResult);
           });
+        });
+
+        if (typeof did === "undefined" && while_) promise = promise.then(function (onResult) {
+          return while_.call(state, false);
         });
 
         promise["catch"](function (error) {
