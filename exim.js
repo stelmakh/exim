@@ -242,7 +242,7 @@ function getRouter() {
   var Router = {};
 
   if (typeof ReactRouter !== "undefined") {
-    var routerElements = ["Route", "DefaultRoute", "RouteHandler", "ActiveHandler", "NotFoundRoute", "Link", "Redirect"],
+    var routerElements = ["Route", "DefaultRoute", "RouteHandler", "ActiveHandler", "NotFoundRoute", "Redirect"],
         routerMixins = ["Navigation", "State"],
         routerFunctions = ["create", "createDefaultRoute", "createNotFoundRoute", "createRedirect", "createRoute", "createRoutesFromReactChildren", "run"],
         routerObjects = ["HashLocation", "History", "HistoryLocation", "RefreshLocation", "StaticLocation", "TestLocation", "ImitateBrowserBehavior", "ScrollToTopBehavior"],
@@ -258,6 +258,14 @@ function getRouter() {
 
     Router.mount = function (path) {
       console.log("Exim.Router.mount is not defined");
+    };
+
+    Router.Link = function (args, children) {
+      if ("class" in args) {
+        args.className = args["class"];
+        delete args["class"];
+      }
+      return React.createElement(ReactRouter.Link, args, children);
     };
 
     Router.match = function (name, handler, args, children) {
