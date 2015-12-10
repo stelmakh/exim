@@ -1,4 +1,20 @@
 import utils from './utils'
+import helpers from './helpers'
+
+function getFilePath(name) {
+  let segments = name.split('-');
+  let filePath;
+  if (segments.length > 1) {
+    filePath = segments.map(function(name, i){
+      if (i>0)
+        return name.charAt(0).toUpperCase() + name.slice(1)
+      return name
+    }).join('/');
+  } else {
+    filePath = name + '/' + name.charAt(0).toUpperCase() + name.slice(1);
+  }
+  return filePath;
+}
 
 function getFilePath(name) {
   let segments = name.split('-');
@@ -89,6 +105,12 @@ function getDOM () {
       let first = args[0] && args[0].constructor;
       if (first === Object) {
         attributes = args.shift();
+        if (attributes.class != null) {
+          attributes.className = attributes.class;
+        }
+        if (typeof attributes.className === 'object') {
+          attributes.className = helpers.cx(attributes.className);
+        }
       } else {
         attributes = {};
       }

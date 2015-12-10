@@ -224,6 +224,22 @@ Object.defineProperty(exports, "__esModule", {
 
 var utils = _interopRequire(require("./utils"));
 
+var helpers = _interopRequire(require("./helpers"));
+
+function getFilePath(name) {
+  var segments = name.split("-");
+  var filePath = undefined;
+  if (segments.length > 1) {
+    filePath = segments.map(function (name, i) {
+      if (i > 0) return name.charAt(0).toUpperCase() + name.slice(1);
+      return name;
+    }).join("/");
+  } else {
+    filePath = name + "/" + name.charAt(0).toUpperCase() + name.slice(1);
+  }
+  return filePath;
+}
+
 function getFilePath(name) {
   var segments = name.split("-");
   var filePath = undefined;
@@ -319,6 +335,12 @@ function getDOM() {
         var first = args[0] && args[0].constructor;
         if (first === Object) {
           attributes = args.shift();
+          if (attributes["class"] != null) {
+            attributes.className = attributes["class"];
+          }
+          if (typeof attributes.className === "object") {
+            attributes.className = helpers.cx(attributes.className);
+          }
         } else {
           attributes = {};
         }
@@ -360,7 +382,7 @@ function createView(classArgs) {
 
 ;
 
-},{"./utils":12}],5:[function(require,module,exports){
+},{"./helpers":10,"./utils":12}],5:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var key in props) { var prop = props[key]; prop.configurable = true; if (prop.value) prop.writable = true; } Object.defineProperties(target, props); } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -879,15 +901,32 @@ module.exports = {
 },{}],10:[function(require,module,exports){
 "use strict";
 
+var hasOwn = ({}).hasOwnProperty;
+
 module.exports = {
-  cx: function cx(classNames) {
-    if (typeof classNames == "object") {
-      return Object.keys(classNames).filter(function (className) {
-        return classNames[className];
-      }).join(" ");
-    } else {
-      return Array.prototype.join.call(arguments, " ");
+  cx: function cx() {
+    var classes = "";
+
+    for (var i = 0; i < arguments.length; i++) {
+      var arg = arguments[i];
+      if (!arg) continue;
+
+      var argType = typeof arg;
+
+      if (argType === "string" || argType === "number") {
+        classes += " " + arg;
+      } else if (Array.isArray(arg)) {
+        classes += " " + this.cx.apply(this, arg);
+      } else if (argType === "object") {
+        for (var key in arg) {
+          if (hasOwn.call(arg, key) && arg[key]) {
+            classes += " " + key;
+          }
+        }
+      }
     }
+
+    return classes.substr(1);
   }
 };
 
