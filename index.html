@@ -267,6 +267,10 @@ components.</p>
 <p>Use <code class="prettyprint">get</code> and <code class="prettyprint">set</code> methods to get or set values in store directly</p>
 <h3 id='initial-values'>initial values</h3>
 <p>Store initial values can be specified using <code class="prettyprint">initial</code> property.</p>
+<h3 id='global-state'>global state</h3>
+<p>Exim&rsquo;s data storage is global. It means that the state of every store can be
+accessed via a handy <code class="prettyprint">Exim.stores</code> helper, which returns a hash with stores
+paths as keys and their states as values.</p>
 <pre><code class="highlight javascript"><span class="kd">var</span> <span class="nx">userActions</span> <span class="o">=</span> <span class="nx">Exim</span><span class="p">.</span><span class="nx">createActions</span><span class="p">([</span><span class="s1">'eat'</span><span class="p">,</span> <span class="s1">'drink'</span><span class="p">])</span>
 
 <span class="c1">// the actual work happens here:</span>
@@ -282,6 +286,9 @@ components.</p>
     <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">({</span><span class="na">type</span><span class="p">:</span> <span class="s1">'Brunch'</span><span class="p">,</span> <span class="na">with</span><span class="p">:</span> <span class="s1">'Chaplin'</span><span class="p">,</span> <span class="na">food</span><span class="p">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'prefix'</span><span class="p">)</span> <span class="o">+</span> <span class="s1">' '</span> <span class="o">+</span> <span class="nx">drink</span><span class="p">});</span>
   <span class="p">}</span>
 <span class="p">})</span>
+
+<span class="c1">// Get Users store value from global state</span>
+<span class="nx">Exim</span><span class="p">.</span><span class="nx">stores</span><span class="p">.</span><span class="nx">users</span><span class="p">.</span><span class="nx">food</span><span class="p">;</span>
 </code></pre>
 <pre><code class="highlight coffeescript"><span class="nx">userActions</span> <span class="o">=</span> <span class="nx">Exim</span><span class="p">.</span><span class="na">createActions</span><span class="p">([</span><span class="s">'eat'</span><span class="p">,</span> <span class="s">'drink'</span><span class="p">])</span>
 
@@ -296,6 +303,9 @@ components.</p>
 
   <span class="na">drink</span><span class="o">:</span> <span class="p">(</span><span class="nx">drink</span><span class="p">)</span> <span class="o">-&gt;</span>
     <span class="vi">@</span><span class="na">set</span> <span class="na">type</span><span class="o">:</span> <span class="s">'Brunch'</span><span class="p">,</span> <span class="na">with</span><span class="o">:</span> <span class="s">'Chaplin'</span><span class="p">,</span> <span class="na">food</span><span class="o">:</span> <span class="s">"</span><span class="si">#{</span><span class="vi">@</span><span class="na">get</span><span class="p">(</span><span class="s">'prefix'</span><span class="p">)</span><span class="si">}</span><span class="s"> </span><span class="si">#{</span><span class="nx">drink</span><span class="si">}</span><span class="s">"</span>
+
+<span class="c1"># Get Users store value from global state
+</span><span class="nx">Exim</span><span class="p">.</span><span class="na">stores</span><span class="p">.</span><span class="na">users</span><span class="p">.</span><span class="na">food</span>
 </code></pre>
 <h1 id='components'>Components</h1>
 <p>Simple React components.</p>
@@ -316,10 +326,10 @@ subscribe to should have a <code class="prettyprint">path</code> property define
   <span class="na">init</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
     <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">({</span><span class="na">type</span><span class="p">:</span> <span class="s1">''</span><span class="p">,</span> <span class="na">with</span><span class="p">:</span> <span class="s1">''</span><span class="p">,</span> <span class="na">food</span><span class="p">:</span> <span class="s1">''</span><span class="p">});</span>
   <span class="p">},</span>
-  <span class="nx">onEat</span><span class="err">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">food</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">eat</span><span class="err">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">food</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">({</span><span class="na">type</span><span class="p">:</span> <span class="s1">'Brunch'</span><span class="p">,</span> <span class="na">with</span><span class="p">:</span> <span class="s1">'Chaplin'</span><span class="p">,</span> <span class="na">food</span><span class="p">:</span> <span class="nx">food</span><span class="p">});</span>
   <span class="p">},</span>
-  <span class="nx">onDrink</span><span class="err">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">drink</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">drink</span><span class="err">:</span> <span class="kd">function</span><span class="p">(</span><span class="nx">drink</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">this</span><span class="p">.</span><span class="nx">set</span><span class="p">({</span><span class="na">type</span><span class="p">:</span> <span class="s1">'Brunch'</span><span class="p">,</span> <span class="na">with</span><span class="p">:</span> <span class="s1">'Chaplin'</span><span class="p">,</span> <span class="na">food</span><span class="p">:</span> <span class="s1">'liquid '</span> <span class="o">+</span> <span class="nx">drink</span><span class="p">});</span>
   <span class="p">}</span>
 <span class="p">})</span>
@@ -353,10 +363,10 @@ subscribe to should have a <code class="prettyprint">path</code> property define
   <span class="na">init</span><span class="o">:</span> <span class="o">-&gt;</span>
     <span class="vi">@</span><span class="na">set</span> <span class="na">type</span><span class="o">:</span> <span class="s">''</span><span class="p">,</span> <span class="na">with</span><span class="o">:</span> <span class="s">''</span><span class="p">,</span> <span class="na">food</span><span class="o">:</span> <span class="s">''</span>
 
-  <span class="na">onEat</span><span class="o">:</span> <span class="p">(</span><span class="nx">food</span><span class="p">)</span> <span class="o">-&gt;</span>
+  <span class="na">eat</span><span class="o">:</span> <span class="p">(</span><span class="nx">food</span><span class="p">)</span> <span class="o">-&gt;</span>
     <span class="vi">@</span><span class="na">set</span> <span class="na">type</span><span class="o">:</span> <span class="s">'Brunch'</span><span class="p">,</span> <span class="na">with</span><span class="o">:</span> <span class="s">'Chaplin'</span><span class="p">,</span> <span class="na">food</span><span class="o">:</span> <span class="nx">food</span><span class="p">)</span>
 
-  <span class="na">onDrink</span><span class="o">:</span> <span class="p">(</span><span class="nx">drink</span><span class="p">)</span> <span class="o">-&gt;</span>
+  <span class="na">drink</span><span class="o">:</span> <span class="p">(</span><span class="nx">drink</span><span class="p">)</span> <span class="o">-&gt;</span>
     <span class="vi">@</span><span class="na">set</span> <span class="na">type</span><span class="o">:</span> <span class="s">'Brunch'</span><span class="p">,</span> <span class="na">with</span><span class="o">:</span> <span class="s">'Chaplin'</span><span class="p">,</span> <span class="na">food</span><span class="o">:</span> <span class="s">'liquid '</span> <span class="o">+</span> <span class="nx">drink</span>
 
 <span class="nx">var</span> <span class="nx">UserView</span> <span class="o">=</span> <span class="nx">Exim</span><span class="p">.</span><span class="na">createView</span>
@@ -364,7 +374,7 @@ subscribe to should have a <code class="prettyprint">path</code> property define
 </span>  <span class="na">mixins</span><span class="o">:</span> <span class="p">[</span><span class="nx">Exim</span><span class="p">.</span><span class="na">connect</span><span class="p">(</span><span class="nx">Users</span><span class="p">(</span><span class="s">'type'</span><span class="p">))]</span>
 
   <span class="c1">#Subscribe to Users store `with` and `food` values updates
-</span>  <span class="na">listen</span><span class="o">:</span> <span class="p">[</span><span class="s">'users/with'</span><span class="p">,</span> <span class="s">'users/food'</span><span class="p">],</span>
+</span>  <span class="na">listen</span><span class="o">:</span> <span class="p">[</span><span class="s">'users/with'</span><span class="p">,</span> <span class="s">'users/food'</span><span class="p">]</span>
 
   <span class="na">render</span><span class="o">:</span> <span class="o">-&gt;</span>
     <span class="p">{</span><span class="nx">food</span><span class="p">,</span> <span class="nx">friend</span><span class="p">,</span> <span class="nx">type</span><span class="p">}</span> <span class="o">=</span> <span class="vi">@</span><span class="na">state</span>
