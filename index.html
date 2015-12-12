@@ -271,6 +271,11 @@ components.</p>
 <p>Exim&rsquo;s data storage is global. It means that the state of every store can be
 accessed via a handy <code class="prettyprint">Exim.stores</code> helper, which returns a hash with stores
 paths as keys and their states as values.</p>
+<h3 id='transactional-state-updates'>transactional state updates</h3>
+<p>Store state changes are transactional, hence it doesn&rsquo;t matter how many times
+you call a <code class="prettyprint">set</code> method within an action step, the state will be updated only
+once. Also, <code class="prettyprint">while</code> step state changes are being performed along with other
+steps(<code class="prettyprint">on</code> and <code class="prettyprint">did</code>) to avoid redundand state updates.</p>
 <pre><code class="highlight javascript"><span class="kd">var</span> <span class="nx">userActions</span> <span class="o">=</span> <span class="nx">Exim</span><span class="p">.</span><span class="nx">createActions</span><span class="p">([</span><span class="s1">'eat'</span><span class="p">,</span> <span class="s1">'drink'</span><span class="p">])</span>
 
 <span class="c1">// the actual work happens here:</span>
