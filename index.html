@@ -287,7 +287,9 @@ paths as keys and their states as values.</p>
   <span class="p">}</span>
 <span class="p">})</span>
 
-<span class="c1">// Get Users store value from global state</span>
+<span class="c1">// Get value from the Users store</span>
+<span class="nx">Users</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">'type'</span><span class="p">);</span>
+<span class="c1">// Get value from the global state</span>
 <span class="nx">Exim</span><span class="p">.</span><span class="nx">stores</span><span class="p">.</span><span class="nx">users</span><span class="p">.</span><span class="nx">food</span><span class="p">;</span>
 </code></pre>
 <pre><code class="highlight coffeescript"><span class="nx">userActions</span> <span class="o">=</span> <span class="nx">Exim</span><span class="p">.</span><span class="na">createActions</span><span class="p">([</span><span class="s">'eat'</span><span class="p">,</span> <span class="s">'drink'</span><span class="p">])</span>
@@ -304,7 +306,9 @@ paths as keys and their states as values.</p>
   <span class="na">drink</span><span class="o">:</span> <span class="p">(</span><span class="nx">drink</span><span class="p">)</span> <span class="o">-&gt;</span>
     <span class="vi">@</span><span class="na">set</span> <span class="na">type</span><span class="o">:</span> <span class="s">'Brunch'</span><span class="p">,</span> <span class="na">with</span><span class="o">:</span> <span class="s">'Chaplin'</span><span class="p">,</span> <span class="na">food</span><span class="o">:</span> <span class="s">"</span><span class="si">#{</span><span class="vi">@</span><span class="na">get</span><span class="p">(</span><span class="s">'prefix'</span><span class="p">)</span><span class="si">}</span><span class="s"> </span><span class="si">#{</span><span class="nx">drink</span><span class="si">}</span><span class="s">"</span>
 
-<span class="c1"># Get Users store value from global state
+<span class="c1"># Get value from the Users store
+</span><span class="nx">Users</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="s">'type'</span><span class="p">)</span>
+<span class="c1"># Get value from the global state
 </span><span class="nx">Exim</span><span class="p">.</span><span class="na">stores</span><span class="p">.</span><span class="na">users</span><span class="p">.</span><span class="na">food</span>
 </code></pre>
 <h1 id='components'>Components</h1>
