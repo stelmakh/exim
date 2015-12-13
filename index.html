@@ -124,15 +124,12 @@ Usually, a store would perform an HTTP request in response to action and store t
 <h2 id='actions-and-action-handlers'>Actions and action handlers</h2>
 <p>To listen to specific actions, you pass an object of actions to the <code class="prettyprint">actions</code> property.</p>
 
-<p>Then, you have to define handlers for that actions. There are three ways to do
-it.</p>
+<p>Then, you have to define handlers for that actions.</p>
 
 <p>For simple actions, define a function named exactly as the action.</p>
 
 <p>For more complex actions, you can use a hash with <code class="prettyprint">while</code>, <code class="prettyprint">will</code>, <code class="prettyprint">on</code>, <code class="prettyprint">did</code>
 and <code class="prettyprint">didNot</code> properties.</p>
-
-<p>Alternatively, you can define separate functions for each action: <code class="prettyprint">willAction</code>, <code class="prettyprint">onAction</code>, and <code class="prettyprint">didAction</code>, where <code class="prettyprint">Action</code> is the name of action.</p>
 <pre><code class="highlight javascript"><span class="kd">var</span> <span class="nx">People</span> <span class="o">=</span> <span class="nx">Exim</span><span class="p">.</span><span class="nx">createStore</span><span class="p">({</span>
   <span class="na">actions</span><span class="p">:</span> <span class="p">[</span><span class="s1">'work'</span><span class="p">,</span> <span class="s1">'eat'</span><span class="p">],</span>
 
@@ -148,11 +145,6 @@ and <code class="prettyprint">didNot</code> properties.</p>
     <span class="nx">did</span><span class="err">:</span>   <span class="kd">function</span><span class="p">()</span> <span class="p">{},</span>
     <span class="nx">didNot</span><span class="err">:</span><span class="kd">function</span><span class="p">()</span> <span class="p">{}</span>
   <span class="p">}</span>
-
-  <span class="c1">//Using multiple functions</span>
-  <span class="nl">willWork</span><span class="p">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span> <span class="cm">/* ... */</span> <span class="p">},</span>
-  <span class="nx">onWork</span><span class="err">:</span>   <span class="kd">function</span><span class="p">()</span> <span class="p">{</span> <span class="cm">/* ... */</span> <span class="p">},</span>
-  <span class="nx">didWork</span><span class="err">:</span>  <span class="kd">function</span><span class="p">()</span> <span class="p">{</span> <span class="cm">/* ... */</span> <span class="p">},</span>
 <span class="p">})</span>
 </code></pre>
 <pre><code class="highlight coffeescript"><span class="nx">People</span> <span class="o">=</span> <span class="nx">Exim</span><span class="p">.</span><span class="na">createStore</span>
@@ -169,11 +161,6 @@ and <code class="prettyprint">didNot</code> properties.</p>
 </span>    <span class="na">on</span><span class="o">:</span>     <span class="o">-&gt;</span> <span class="c1"># body
 </span>    <span class="na">did</span><span class="o">:</span>    <span class="o">-&gt;</span> <span class="c1"># goes
 </span>    <span class="na">didNot</span><span class="o">:</span> <span class="o">-&gt;</span> <span class="c1"># here
-</span>
-  <span class="c1"># Using multiple functions
-</span>  <span class="na">willWork</span><span class="o">:</span> <span class="o">-&gt;</span> <span class="c1"># some
-</span>  <span class="na">onWork</span><span class="o">:</span>   <span class="o">-&gt;</span> <span class="c1"># function
-</span>  <span class="na">didWork</span><span class="o">:</span>  <span class="o">-&gt;</span> <span class="c1"># body
 </span></code></pre>
 <h2 id='action-lifecycle'>Action lifecycle</h2>
 <p>Action lifecycle includes five steps</p>
