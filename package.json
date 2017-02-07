@@ -50,5 +50,8 @@
   "bugs": {
     "url": "https://github.com/hellyeahllc/exim/issues"
   },
-  "homepage": "https://github.com/hellyeahllc/exim"
+  "homepage": "https://github.com/hellyeahllc/exim",
+  "dependencies": {
+    "immutable": "^3.8.1"
+  }
 }

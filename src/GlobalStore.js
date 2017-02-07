@@ -1,28 +1,36 @@
 import utils from './utils';
+import Immutable from 'immutable';
 
 let globalStore, stores;
 
 export default class GlobalStore {
   static getStore() {
     if (!globalStore) {
-      globalStore = {};
+      globalStore = Immutable.Map();
     }
     return globalStore;
+  }
+
+  static setStore(store) {
+    return globalStore = store;
   }
 
   static getSubstore(path, init) {
     const store = this.getStore();
     const pathBits = path.split('/');
-    let values = store;
-    pathBits.forEach(function(bit, i, bits) {
-      if (values[bit]) {
-        values = values[bit];
-      } else {
-        values[bit] = (init !== undefined && bits.length - 1 === i) ? init : {};
-        values = values[bit];
-      }
-    });
-    return values;
+    let values = store, found;
+    if (found = values.getIn(pathBits)) {
+      return found;
+    } else {
+      values = values.setIn(pathBits, Immutable.fromJS(init !== undefined ? init : {}));
+      return this.setStore(values);
+    }
+  }
+
+  static setSubstore(path, newValues) {
+    const store = this.getStore();
+    const pathBits = path.split('/');
+    return this.setStore(store.setIn(pathBits, Immutable.fromJS(newValues !== undefined ? newValues : {})));
   }
 
   static init(path, init, store) {
@@ -33,28 +41,23 @@ export default class GlobalStore {
 
   static get(substore, name) {
     const values = this.getSubstore(substore);
-    if (!name) return values;
-    return values ? utils.copyValue(values[name]) : {};
+    if (!name) return values.toJS();
+    const value = values ? values.get(name) : {};
+
+    return (value && typeof (value.toJS) === 'function') ? value.toJS() : value;
   }
 
   static remove(substore, key) {
     const values = this.getSubstore(substore);
-
-    let success = false;
-    if (key) {
-      let k;
-      for (k in values) {
-        success = values[k] && delete values[k];
-      }
-    } else {
-      success = values[key] && delete values[key];
-    }
-    return success;
+    this.setSubstore(substore, key ? values.delete(key) : {});
+    return values.get(key);
   }
 
   static set(substore, name, value) {
     const values = this.getSubstore(substore);
-    if (values) values[name] = value;
+    if (values) {
+      this.setSubstore(substore, values.set(name, Immutable.fromJS(value)));
+    }
     return value;
   }
 
